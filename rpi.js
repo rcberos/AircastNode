@@ -6,8 +6,7 @@ var path = require('path')
 var http = require('http')
 // var config = require('config')
 
-var conf = require(path.join(__dirname, '/config/default.json'));
-console.log(conf.RpiId);
+
 
 var app = express()
 
@@ -52,15 +51,17 @@ var download = function(url, dest, cb) {
 
 
 var checkNewFiles = function(){
+  var RPICONFIG = require(path.join(__dirname, 'config/default.json'));
+  // console.log(obj);
   console.log('check file');
   var opt = {
    headers: { 'Content-Type': 'application/json' },
    open_timeout: 60000
   }
   var data = {
-    RpiID: 2
+    RpiID: RPICONFIG.RpiID
   }
-  needle.post('http://54.254.248.115/rpiCheckFiles', data, opt, function(err, resp) {
+  needle.post(RPICONFIG.RpiServer+'rpiCheckFiles', data, opt, function(err, resp) {
     if(err){
       console.log('rpiUpdate: '+err);
 
@@ -85,13 +86,15 @@ var checkNewFiles = function(){
                 checkNewFiles();
               }, 5000);
           } else {
+            var RPICONFIG = require(path.join(__dirname, 'config/default.json'));
+
             var data = {
-              RpiID: 2,
+              RpiID: RPICONFIG.RpiID,
               value: resp.body.value
             }
             console.log(valueFiles);
 
-            needle.post('http://54.254.248.115/rpiUpdateFiles', data, opt, function(err, resp) {
+            needle.post(RPICONFIG.RpiServer+'rpiUpdateFiles', data, opt, function(err, resp) {
               if(err){
                 console.log('rpiUpdate: '+err);
               }

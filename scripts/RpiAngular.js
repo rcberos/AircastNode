@@ -3,6 +3,8 @@ var app = angular.module('MainModule', ['ui.bootstrap', 'ui.event', 'ngAnimate']
 app.controller('MainController', function($scope, $http, $interval, $timeout, $window){
   // $window.alert('W: '+$window.innerWidth+' H: '+$window.innerHeight);
 
+  
+
   $scope.mainDiv = {
     "position": "relative",
     "top":      "0px",
@@ -200,34 +202,43 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
 
 
   $scope.getTemplates = function(){
-    var data = {
-      RpiID: 2
-    }
-    $http.post('http://54.254.248.115/rpiGetCampaigns', data).then(function(response){
-      var newTemplates = response.data;
-      console.log(newTemplates);
-      if(newTemplates.length != 0){
-        if($scope.templates.length!=newTemplates.length){
-          $scope.templates = newTemplates;
-        }
-        else{
-          for(var i=0; i<$scope.templates.length; i++){
-            if($scope.templates[i].CampaignID != newTemplates[i].CampaignID){
-              $scope.templates = newTemplates;
-              break;
+    $http.get('config/default.json').then(function(response){
+      console.log('default');
+      console.log(response.data);
+      var RpiID = response.data.RpiID;
+
+      var data = {
+        RpiID: RpiID
+      }
+      $http.post('http://54.254.248.115/rpiGetCampaigns', data).then(function(response){
+        var newTemplates = response.data;
+        console.log(newTemplates);
+        if(newTemplates.length != 0){
+          if($scope.templates.length!=newTemplates.length){
+            $scope.templates = newTemplates;
+          }
+          else{
+            for(var i=0; i<$scope.templates.length; i++){
+              if($scope.templates[i].CampaignID != newTemplates[i].CampaignID){
+                $scope.templates = newTemplates;
+                break;
+              }
             }
           }
         }
-      }
-        
-      if(!$scope.$$phase) {
-        $scope.$apply();
-      }
-      console.log($scope.templates);
-      $timeout(function(){$scope.getTemplates();}, 5000);
-    }, function(err){
-      console.log(err);
+          
+        if(!$scope.$$phase) {
+          $scope.$apply();
+        }
+        console.log($scope.templates);
+        $timeout(function(){$scope.getTemplates();}, 5000);
+      }, function(err){
+        console.log(err);
+      });
+
     });
+
+      
   }
 
   $scope.getTemplates();
