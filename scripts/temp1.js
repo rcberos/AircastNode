@@ -72,7 +72,10 @@ function temp1Controller($scope, $window, $timeout, $http, temp1Src, callback){
     console.log('hello');
 	function temp1VideoPlay(){
 		$scope.temp1Src.video = temp1Src.video;
-		$scope.$apply();
+		
+		if(!$scope.$$phase) {
+			$scope.$apply();
+		}
 		vidCtr++;
 		var videoElements = angular.element(document.getElementById('temp1Video'));
 	    		videoElements[0].play();
