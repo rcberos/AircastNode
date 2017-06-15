@@ -1,8 +1,5 @@
 function temp1Controller($scope, $window, $timeout, $http, temp1Src, callback){
-// 	$scope.testing = function(){
-// 		console.log('asdasdasdasd');
-// 		$window.alert($window.innerWidth);
-// 	}
+	
 	var widthMultiplier = 0.75;
 	var heightMultiplier = 0.75;
 	$scope.temp1VideoStyle = {
@@ -47,38 +44,30 @@ function temp1Controller($scope, $window, $timeout, $http, temp1Src, callback){
 	}
 
 	$scope.temp1Src = {
-		// video: temp1Src.video,
+		video: temp1Src.video,
 		side1: temp1Src.side1,
 		side2: temp1Src.side2,
 		side3: temp1Src.side3,
 		bottom: temp1Src.bottom
 	}
 
-	// $timeout(function(){}, 10);
-
-	// var videoElements = angular.element(document.getElementById('temp1Video'));
-	// console.log(videoElements);
- //    videoElements[0].play();
-
  	var vidCtr = 0;
- //    $timeout(function(){
-	// 	$timeout(function(){
-	// 		temp1VideoPlay();
-	// 	}, 10);
-	// }, 10);
 
-	$scope.$apply();
+	if(!$scope.$$phase) {
+		$scope.$apply();
+	}
     
     console.log('hello');
 	function temp1VideoPlay(){
-		$scope.temp1Src.video = temp1Src.video;
-		
-		if(!$scope.$$phase) {
-			$scope.$apply();
-		}
+		// $scope.temp1Src.video = temp1Src.video;
+
+		// if(!$scope.$$phase) {
+		// 	$scope.$apply();
+		// }
+
 		vidCtr++;
 		var videoElements = angular.element(document.getElementById('temp1Video'));
-	    		videoElements[0].play();
+		videoElements[0].play();
 		// $timeout(function(){
 		// 	// var videoElements = angular.element(document.getElementById('temp1Video'));
 	 //  //   		videoElements[0].play();
