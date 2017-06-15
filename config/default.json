@@ -1,0 +1,4 @@
+{
+    "RpiId": "RPI1",
+    "RpiServer": "http://localhost:4000"
+}
