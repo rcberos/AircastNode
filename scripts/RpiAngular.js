@@ -234,8 +234,11 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
         $timeout(function(){$scope.getTemplates();}, 5000);
       }, function(err){
         console.log(err);
+        $timeout(function(){$scope.getTemplates();}, 5000);
       });
 
+    }, function(error){
+      $timeout(function(){$scope.getTemplates();}, 5000);
     });
 
       

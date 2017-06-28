@@ -6,7 +6,7 @@ function temp4Controller($scope, $window, $timeout, $http, tempSrc, callback){
 	    "left":     "0px",
 	    "width":    $window.innerWidth+"px",
 	    "height":   $window.innerHeight+"px",
-	    "background-color": "skyblue",
+	    "background-color": "black",
 	    "background-image": "url('"+tempSrc.gif+"')",
 	    "background-repeat": "no-repeat",
 	    "background-size": "100% 100%"
