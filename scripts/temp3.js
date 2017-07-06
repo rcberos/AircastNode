@@ -1,142 +1,135 @@
-function temp3Controller($scope, $window, $timeout, $http, temp2Src, callback){
+function temp3Controller($scope, $window, $timeout, $http, temp2Src, callback, $q){
 
-	console.log(arguments);
+	weather = function() {
+        var d = $q.defer();
+        $http({
+          method : 'GET',
+          url: 'http://api.openweathermap.org/data/2.5/forecast/daily?id=1701668&APPID=9f534971ae41269da3bdca6da5ad3a67&q=Manila&cnt=7',
+          withCredentials: false,
+          headers: { 'Content-Type': 'application/json' }
+        }).then(function(data){
+          d.resolve(data);
+        });
 
-	$scope.temp3DivStyle = {
-	    "position": "relative",
-	    "top":      "0px",
-	    "left":     "0px",
-	    "width":    $window.innerWidth+"px",
-	    "height":   $window.innerHeight+"px",
-	    "background-color": "skyblue",
-	    "background-image": "url('images/clouds.jpg')",
-	    "background-repeat": "no-repeat",
-	    "background-size": "100% 100%"
-	}
-	$scope.temp3CityStyle = {
-	    "position": "absolute",
-	    "top":      "100px",
-	    "left":     $window.innerWidth*.2+"px",
-	    // "width":    $window.innerWidth+"px",
-	    // "height":   $window.innerHeight+"px",
-	    "font-size": "2em"
-	}
-	$scope.temp3TempStyle = {
-	    "position": "absolute",
-	    "top":      "200px",
-	    "left":     $window.innerWidth*.2+"px",
-	    // "width":    $window.innerWidth+"px",
-	    // "height":   $window.innerHeight+"px",
-	    "font-size": "2em"
-	}
+        return d.promise;
+    }
 
-	$scope.temp3WindStyle = {
-	    "position": "absolute",
-	    "top":      "300px",
-	    "left":     $window.innerWidth*.2+"px",
-	    "font-size": "2em"
-	}
-	$scope.temp3WeatherStyle = {
-	    "position": "absolute",
-	    "top":      "400px",
-	    "left":     $window.innerWidth*.2+"px",
-	    "font-size": "2em"
-	}
+    weather_now = function() {
+        var d = $q.defer();
+        $http({
+          method : 'GET',
+          url: 'http://api.openweathermap.org/data/2.5/weather?id=1701668&APPID=9f534971ae41269da3bdca6da5ad3a67',
+          withCredentials: false,
+          headers: { 'Content-Type': 'application/json' }
+        }).then(function(data){
+          d.resolve(data);
+        });
+
+        return d.promise;
+    }
+
+    function getGreetingTime (m) {
+      	var g = null; //return g
+
+      	// if(!m || !m.isValid()) { return; } //if we can't find a valid or filled moment, we return.
+
+      	var split_afternoon = 12 //24hr time to split the afternoon
+      	var split_evening = 17 //24hr time to split the evening
+      	// var currentHour = parseFloat(m.format("HH"));
+
+      	var date = new Date(m);
+		// Hours part from the timestamp
+		var currentHour = date.getHours();
+		console.log('current: '+currentHour);
+
+      	if(currentHour >= split_afternoon && currentHour <= split_evening) {
+      		g = "afternoon";
+      	} else if(currentHour >= split_evening) {
+      		g = "evening";
+      	} else {
+      		g = "morning";
+      	}
+
+      	return g;
+      }
+
+    function get_icon (weather,greeting) {
+      if(weather == 'Rain') {
+        return  'icon-rain'
+      }
+
+      else if(greeting == 'evening') {
+        if(x["weather"] == 'Clouds') {
+          return 'icon-moon-cloud'
+        }
+        else {
+          return 'icon-waning-crescent-moon'
+        }
+      }
+      else {
+        if(weather == 'Clouds') {
+          return  'icon-sun-cloud'
+        }
+        else {
+          return 'icon-sun'
+        }
+      }
+    }
+
+    weather().then(function(d){
+
+      now = weather_now().then(function(data){
+        now_w = {}
+        now_w["temp"] =  data.data.main.temp - 273.15
+        now_w["description"] = data.data.weather[0].description
+        now_w["weather"] = data.data.weather[0].main
+        now_w["greeting"] = getGreetingTime(data.data.dt*1000)
+        now_w["icon"] = get_icon(data.data.weather[0].main, now_w["greeting"])
+
+        $scope.now_weather = now_w
+      })
 
 
-	$scope.temp3TextStyle = {
-	    "position": "absolute",
-	    "top":      "300px",
-	    "left":     $window.innerWidth*.3+"px",
-	    // "width":    $window.innerWidth+"px",
-	    // "height":   $window.innerHeight+"px",
-	    "font-size": "1em"
-	}
-	
+      conditions = []
 
-	$scope.temp3Loading = {
-	    "position": "absolute",
-	    "top":      "0px",
-	    "left":     "0px",
-	    "width":    $window.innerWidth+"px",
-	    "height":   $window.innerHeight+"px",
-	    // "font-size": "1em"
-	}
-	
+      d.data.list.forEach(function(v){
+      	x = {}
 
-	// $scope.$apply();
-	if(!$scope.$$phase) {
-			$scope.$apply();
-		}
+      	var months = ['Jan', 'Feb', 'Mar', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+      	var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      	var date = new Date(v.dt*1000);
+		// Hours part from the timestamp
+		var currentDay = date.getDay();
 
-	$http.get('http://api.openweathermap.org/data/2.5/weather?q=Manila&appid=29e1d90ba906e48e127efbe09126adfe').then(function(response){
-		console.log(response.data);
-		Typed.new(".temp3TextClass", {
-			strings: ["ADASDASDGHJASGDJHGASJHDGJHGJH\nQEQWEQWEQWYUETUYQWETUYQWTEUqEEQWE","NEXT SENTENCE"],
-			typeSpeed: 0,
-			callback: function(){
-				Typed.new(".temp3TextClass", {
-					strings: ["STRING 3"],
-					typeSpeed: 0,
-					callback: function(){
-						console.log('done');
-					}
-				});					}
-		});
-		$scope.temp3Data = {
-			city: response.data.name,
-			temp: (response.data.main.temp-273.15)+" Celcius",
-			windSpeed: (response.data.wind.speed)+" meters/second",
-			weatherMain: response.data.weather[0].main,
-			weatherDesc: response.data.weather[0].description
-		}
-		console.log($scope.temp3Data);
-		if(!$scope.$$phase) {
-			$scope.$apply();
-		}
-		else{
-			console.log('fail apply');
-		}
-		// $scope.$apply();
-		// $timeout(function(){}, 10);
-	},
-	function(error){
-		console.log(error);
-	});
-	
-// $scope.$apply();
-// $scope.$apply();
-// console.log('timeout');
+        x["temp"] = v.temp.day - 273.15
+        // x["day"] = moment(v.dt*1000).format('dddd')
+        x["day"] = days[currentDay];
+        x["weather"] = v.weather[0].main
+        x["greeting"] = getGreetingTime(v.dt*1000)
+        x["icon"] = get_icon(x["weather"], x["greeting"])
 
-	// $timeout(function(){
-	// 	$timeout(function(){
-	// 		$http.get('http://api.openweathermap.org/data/2.5/weather?q=Manila&appid=29e1d90ba906e48e127efbe09126adfe').then(function(response){
-	// 			console.log(response.data);
-	// 			Typed.new(".temp3TextClass", {
-	// 				strings: ["ADASDASDGHJASGDJHGASJHDGJHGJH\nQEQWEQWEQWYUETUYQWETUYQWTEUqEEQWE","NEXT SENTENCE"],
-	// 				typeSpeed: 0,
-	// 				callback: function(){
-	// 					Typed.new(".temp3TextClass", {
-	// 						strings: ["STRING 3"],
-	// 						typeSpeed: 0,
-	// 						callback: function(){
-	// 							console.log('done');
-	// 						}
-	// 					});					}
-	// 			});
-	// 			$scope.temp3Data = {
-	// 				city: response.data.name,
-	// 				temp: response.data.main.temp-273.15
-	// 			}
-	// 			$timeout(function(){}, 10);
-	// 		},
-	// 		function(error){
-	// 			console.log(error);
-	// 		});
-	// 	}, 10);
-	// }, 10);
+
+        conditions.push(x)
+      })
+      // _.each(d.data.list, function(v) {
+      //   x = {}
+
+      //   x["temp"] = v.temp.day - 273.15
+      //   x["day"] = moment(v.dt*1000).format('dddd')
+      //   x["weather"] = v.weather[0].main
+      //   x["greeting"] = getGreetingTime(v.dt*1000)
+      //   x["icon"] = get_icon(x["weather"], x["greeting"])
+
+
+      //   conditions.push(x)
+      // })
+
+      $scope.conditions = conditions
+
+      // $scope.now = moment().format('MMMM DD ddd');
+
+    });
 
 	
-
 	$timeout(callback, 10000);
 }

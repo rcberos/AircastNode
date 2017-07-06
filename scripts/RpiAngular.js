@@ -1,6 +1,6 @@
 var app = angular.module('MainModule', ['ui.bootstrap', 'ui.event', 'ngAnimate']);
 
-app.controller('MainController', function($scope, $http, $interval, $timeout, $window){
+app.controller('MainController', function($scope, $http, $interval, $timeout, $window, $q){
   // $window.alert('W: '+$window.innerWidth+' H: '+$window.innerHeight);
 
   
@@ -35,30 +35,29 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
 
 
 
-    var payload = {
-    CampaignID: 2,
-    tempHtml: 'templates/temp1.html',
-    tempSrc: {
-                video: "images/audition.mp4",
-                side1: "images/side1.jpg",
-                side2: "images/side1.jpg",
-                side3: "images/side1.jpg",
-                bottom: "images/bottom.jpg",
-              },
-    tempJs: 'scripts/temp1.js',
-    tempInit: 'temp1Controller'
-  }
+  //   var payload = {
+  //   CampaignID: 2,
+  //   tempHtml: 'templates/temp1.html',
+  //   tempSrc: {
+  //               video: "images/audition.mp4",
+  //               side1: "images/side1.jpg",
+  //               side2: "images/side1.jpg",
+  //               side3: "images/side1.jpg",
+  //               bottom: "images/bottom.jpg",
+  //             },
+  //   tempJs: 'scripts/temp1.js',
+  //   tempInit: 'temp1Controller'
+  // }
 
-  $scope.templates.push(payload);
+  // $scope.templates.push(payload);
 
   // var payload = {
   //   CampaignID: 3,
-  //   tempHtml: 'templates/temp4.html',
+  //   tempHtml: 'templates/temp3.html',
   //   tempSrc: {
-  //     gif: "images/traffic_forecast.jpg"
   //             },
-  //   tempJs: 'scripts/temp4.js',
-  //   tempInit: 'temp4Controller'
+  //   tempJs: 'scripts/temp3.js',
+  //   tempInit: 'temp3Controller'
   // }
 
   // $scope.templates.push(payload);
@@ -143,7 +142,27 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
   var isStart = true;
   $scope.templatePosition = 0;
   $scope.templateShuffle = function(){
-    console.log($scope.templates);
+
+
+    if($scope.templates.length == 0){
+      var payload = {
+        CampaignID: 2,
+        tempHtml: 'templates/temp1.html',
+        tempSrc: {
+                    video: "images/audition.mp4",
+                    side1: "images/side1.jpg",
+                    side2: "images/side1.jpg",
+                    side3: "images/side1.jpg",
+                    bottom: "images/bottom.jpg",
+                  },
+        tempJs: 'scripts/temp1.js',
+        tempInit: 'temp1Controller'
+      }
+
+      $scope.templates.push(payload);
+    }
+
+    // console.log($scope.templates);
     // if($scope.templatePosition == $scope.templates.length-1){
     //   $scope.templatePosition = 0;
     // }
@@ -154,24 +173,56 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
     //   $scope.templatePosition++;
     // }
 
-    var tempEnable = 1;
-    for(var i=0; i<$scope.templates.length; i++){
-      if($scope.templates[i].CampaignID>$scope.currentCampaignID){
-        tempEnable = 0;
-        var playingTemplate = $scope.templates[i];
-        $scope.currentCampaignID = $scope.templates[i].CampaignID;
-        break;
+    // var tempEnable = 1;
+    // for(var i=0; i<$scope.templates.length; i++){
+    //   if($scope.templates[i].CampaignID>$scope.currentCampaignID){
+    //     tempEnable = 0;
+    //     var playingTemplate = $scope.templates[i];
+    //     $scope.currentCampaignID = $scope.templates[i].CampaignID;
+    //     break;
+    //   }
+    // }
+    // if(tempEnable){
+    //   var playingTemplate = $scope.templates[0];
+    //   $scope.currentCampaignID = $scope.templates[0].CampaignID;
+    // }
+
+
+    var playingTemplate = $scope.templates[0];
+    $scope.templates.shift();
+    $scope.templates.push(playingTemplate);
+
+    // console.log($scope.templates);
+
+    // console.log('template');
+    // console.log(playingTemplate);
+
+    console.log('updating Wallet');
+
+    $http.get('config/default.json').then(function(response){
+      // console.log('default');
+      // console.log(response.data);
+      var RpiID = response.data.RpiID;
+
+      var data = {
+        RpiID: RpiID,
+        CampaignID: playingTemplate.CampaignID
       }
-    }
-    if(tempEnable){
-      var playingTemplate = $scope.templates[0];
-      $scope.currentCampaignID = $scope.templates[0].CampaignID;
-    }
+      $http.post('http://54.254.248.115/rpiUpdateWallet', data).then(function(response){
+        // console.log(response);
+        console.log('update wallet success');
+      }, function(err){
+        console.log('wallet update failed');
+        console.log(err);
+      });
 
-    console.log(playingTemplate);
+    }, function(error){
+      console.log('get config failed');
+    });
 
-    console.log('aweawea');
-    console.log(playingTemplate.tempSrc);
+
+    // console.log('aweawea');
+    // console.log(playingTemplate.tempSrc);
 
     $scope.tempUrl = playingTemplate.tempHtml;
     requirejs([playingTemplate.tempJs],function(){
@@ -183,13 +234,14 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
         '$http': $http,
         'source': playingTemplate.tempSrc,
         "callback": $scope.templateShuffle,
+        '$q': $q
       };
       // tempNameSpace['$scope'] = 'asdasd';
       var ttt = '$scope';
-      console.log(tempNameSpace[ttt]);
+      // console.log(tempNameSpace[ttt]);
 
 
-      var payl2 = [tempNameSpace['$scope'], tempNameSpace['$window'], tempNameSpace['$timeout'], tempNameSpace['$http'], tempNameSpace['source'], tempNameSpace['callback']];
+      var payl2 = [tempNameSpace['$scope'], tempNameSpace['$window'], tempNameSpace['$timeout'], tempNameSpace['$http'], tempNameSpace['source'], tempNameSpace['callback'], tempNameSpace['$q']];
       var payl = [$scope, $window, $timeout, $http, playingTemplate.tempSrc, $scope.templateShuffle];
       // var fffs = "asd"
       // var oNew = Object.create(this.prototype);
@@ -203,8 +255,8 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
 
   $scope.getTemplates = function(){
     $http.get('config/default.json').then(function(response){
-      console.log('default');
-      console.log(response.data);
+      // console.log('default');
+      // console.log(response.data);
       var RpiID = response.data.RpiID;
 
       var data = {
@@ -213,24 +265,71 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
       $http.post('http://54.254.248.115/rpiGetCampaigns', data).then(function(response){
         var newTemplates = response.data;
         console.log(newTemplates);
-        if(newTemplates.length != 0){
-          if($scope.templates.length!=newTemplates.length){
-            $scope.templates = newTemplates;
-          }
-          else{
-            for(var i=0; i<$scope.templates.length; i++){
-              if($scope.templates[i].CampaignID != newTemplates[i].CampaignID){
-                $scope.templates = newTemplates;
-                break;
-              }
+        console.log('temp');
+        // console.log($scope.templates);
+        
+        var i=0;
+        while(i<$scope.templates.length){
+          var wasInside = false;
+          for(var j=0; j<newTemplates.length; j++){
+            // console.log("NEW: "+newTemplates[j].CampaignID+" OLD: "+$scope.templates[i].CampaignI);
+            if(newTemplates[j].CampaignID == $scope.templates[i].CampaignID){
+              wasInside = true;
+              break;
             }
           }
+
+          if(!wasInside){
+            $scope.templates.shift();
+          }
+          else{
+            i++;
+          }
+          // console.log('i: '+i);
+          // console.log($scope.templates);
         }
+        // console.log('mid temp');
+        // console.log($scope.templates);
+        for(var i=0; i<newTemplates.length; i++){
+          // console.log(newTemplates[i]);
+          var wasInside = false;
+          for(var j=0; j<$scope.templates.length; j++){
+            if(newTemplates[i].CampaignID == $scope.templates[j].CampaignID){
+              wasInside = true;
+              break;
+            }
+          }
+          if(!wasInside){
+            // console.log('inserted');
+            $scope.templates.unshift(newTemplates[i]);
+          }
+          // else
+          //   console.log('not inserted');
+        }
+
+        // console.log('end temp');
+        // console.log($scope.templates);
+
+        // if(newTemplates.length != 0){
+        //   var
+
+        //   if($scope.templates.length!=newTemplates.length){
+        //     $scope.templates = newTemplates;
+        //   }
+        //   else{
+        //     for(var i=0; i<$scope.templates.length; i++){
+        //       if($scope.templates[i].CampaignID != newTemplates[i].CampaignID){
+        //         $scope.templates = newTemplates;
+        //         break;
+        //       }
+        //     }
+        //   }
+        // }
           
         if(!$scope.$$phase) {
           $scope.$apply();
         }
-        console.log($scope.templates);
+        // console.log($scope.templates);
         $timeout(function(){$scope.getTemplates();}, 5000);
       }, function(err){
         console.log(err);

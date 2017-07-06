@@ -1,22 +1,16 @@
-<div ng-style="temp3DivStyle">
-
-<!-- <div class="sampleContainer" ng-style="temp3Loading">
-    <div class="loader">
-        <span class="dot dot_1"></span>
-        <span class="dot dot_2"></span>
-        <span class="dot dot_3"></span>
-        <span class="dot dot_4"></span>
+<div class="weather">
+  <div class="head">
+    <div class="align-right">
+      <i class ="line-icon weather-icon" ng-class="now_weather.icon"></i>
+      <h3>{{now_weather.temp}}°C</h3>
     </div>
-</div> -->
-	
-	<div ng-style="temp3CityStyle">City: {{temp3Data.city}}</div>
-	<div ng-style="temp3TempStyle">Temperature: {{temp3Data.temp}}</div>
-    <div ng-style="temp3WindStyle">Wind Speed: {{temp3Data.windSpeed}}</div>
-    <div ng-style="temp3TempStyle">Temperature: {{temp3Data.temp}}</div>
-    <div ng-style="temp3WeatherStyle">{{temp3Data.weatherMain}}: {{temp3Data.weatherDesc}}</div>
-
-	<!-- <div ng-style="temp3TextStyle" class="temp3TextClass" style="white-space:pre"> -->
-	</div>
+    <p>Today, Quezon City </p>
+  </div>
+  <div class="row footer">
+    <div class="col-sm-3 align-center" ng-if="$index >= 1" ng-repeat="c in conditions | limitTo: 5">
+      <h6>{{c.day}}</h6>
+      <i class ="line-icon blue" ng-class="c.icon"></i>
+      <h5>{{c.temp | number:0}}°</h5>
+    </div>
+  </div>
 </div>
-
-
