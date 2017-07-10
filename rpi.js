@@ -42,6 +42,7 @@ var download = function(url, dest, cb) {
       file.close(cb);  // close() is async, call cb after close completes.
     });
   }).on('error', function(err) { // Handle errors
+    cb('failed');
     console.log('download error');
     fs.unlink(dest); // Delete the file async. (But we don't check the result)
     // if (cb) cb(err.message);
