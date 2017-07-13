@@ -16,8 +16,12 @@ function temp2Controller($scope, $window, $timeout, $http, temp2Src, callback){
 
 	$timeout(function(){
 		$timeout(function(){
+
 			// var videoElements = angular.element(document.getElementById('temp2Video'));
 			var videoElements = document.getElementById('temp2Video');
+
+			document.getElementById('temp2Video').src = temp2Src.video;
+
 			console.log(videoElements);
 	    	// videoElements[0].play();
 	    	videoElements.play();
