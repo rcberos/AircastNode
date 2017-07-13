@@ -225,6 +225,9 @@ app.controller('MainController', function($scope, $http, $interval, $timeout, $w
     // console.log(playingTemplate.tempSrc);
 
     $scope.tempUrl = playingTemplate.tempHtml;
+    if(!$scope.$$phase) {
+      $scope.$apply();
+    }
     requirejs([playingTemplate.tempJs],function(){
       // console.log($scope.templatePosition);
       var tempNameSpace = {
